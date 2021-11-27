@@ -1,0 +1,7 @@
+/src/**/*
+.prettierrc.js
+.gitignore
+.eslintrc
+yarn.lock
+tsconfig.json
+.npmrc
