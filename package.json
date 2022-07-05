@@ -1,6 +1,6 @@
 {
   "name": "@skuareinc/stockx-api",
-  "version": "1.1.4",
+  "version": "1.2.0",
   "description": "Stock X Scrapper",
   "main": "dist/index.js",
   "scripts": {
