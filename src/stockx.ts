@@ -61,13 +61,24 @@ export class StockX {
     const proxy = this.buildProxy() || {};
     const userAgent = this.buildUserAgent();
 
-    return RequestParser({
+    let params = {
       headers: {
         'apollographql-client-name': 'Iron',
         'User-Agent': userAgent,
       },
-      httpsAgent: new HttpsProxyAgent(proxy),
-    });
+    };
+
+    // Inject proxy in params if one or more proxies are available,
+    // otherwise, omit the proxy agent
+    if (Object.keys(proxy).length) {
+      const httpsAgent = new HttpsProxyAgent(proxy);
+      params = {
+        ...params,
+        ...httpsAgent,
+      };
+    }
+
+    return RequestParser(params);
   }
 
   private buildProxy(): Proxy | undefined {

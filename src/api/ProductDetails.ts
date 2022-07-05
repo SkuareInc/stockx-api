@@ -11,17 +11,19 @@ export const ProductDetails = async (url: string, options: ScrapOption): Promise
   const [match, urlKey] = url.match(/^https?:\/\/stockx\.com.*\/([0-9a-z-]+)$/i) || [];
   if (!match) throw new InvalidInputException();
 
-  const res = await executor.post(
-    'https://stockx.com/p/e',
-    {
-      operationName: 'GetProduct',
-      variables: {
-        id: urlKey,
-        currencyCode,
-        countryCode,
-      },
-      query: QueryProduct,
+  const body = {
+    operationName: 'GetProduct',
+    query: QueryProduct,
+    variables: {
+      id: urlKey,
+      currencyCode,
+      countryCode,
     },
+  };
+
+  const res = await executor.post(
+    'https://stockx.com/api/p/e',
+    body,
   );
 
   const { data: { data: { product: ProductRes } } } = res;
@@ -34,7 +36,7 @@ export const ProductDetails = async (url: string, options: ScrapOption): Promise
     image: ProductRes.media.imageUrl,
     urlKey: ProductRes.urlKey,
     brand: ProductRes.brand,
-    type: CastType(ProductRes.breadcrumbs, ProductRes.title),
+    type: CastType(ProductRes.productCategory),
     price: ProductRes.market.bidAskData.lowestAsk,
     stock: ProductRes.market.bidAskData.numberOfAsks,
     variants: [],

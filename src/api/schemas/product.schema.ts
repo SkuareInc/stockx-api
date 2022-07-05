@@ -1,19 +1,21 @@
 export const QueryProduct = `
-  query GetProduct($id: String!, $currencyCode: CurrencyCode, $countryCode: String!, $marketName: String) {
+query GetProduct($id: String!, $currencyCode: CurrencyCode, $countryCode: String!, $marketName: String) {
   product(id: $id) {
     id
+    listingType
+    deleted
+    ...ProductMerchandisingFragment
     ...AffirmCalloutFragment
-    ...BidButtonContentFragment
     ...BreadcrumbsFragment
     ...BreadcrumbSchemaFragment
-    ...BuySellContentFragment
-    ...BuySellFragment
     ...HazmatWarningFragment
     ...HeaderFragment
     ...LastSaleFragment
-    ...LowInventoryBannerFragment
+    ...UrgencyBadgeFragment
     ...MarketActivityFragment
     ...MediaFragment
+    ...MyPositionFragment
+    ...ProductDetailsFragment
     ...ProductMetaTagsFragment
     ...ProductSchemaFragment
     ...ScreenTrackerFragment
@@ -24,6 +26,29 @@ export const QueryProduct = `
     ...UtilityGroupFragment
     __typename
   }
+}
+
+fragment ProductMerchandisingFragment on Product {
+  id
+  merchandising {
+    title
+    subtitle
+    image {
+      alt
+      url
+      __typename
+    }
+    body
+    trackingEvent
+    link {
+      title
+      url
+      urlType
+      __typename
+    }
+    __typename
+  }
+  __typename
 }
 
 fragment AffirmCalloutFragment on Product {
@@ -50,41 +75,6 @@ fragment AffirmCalloutFragment on Product {
   __typename
 }
 
-fragment BidButtonContentFragment on Product {
-  id
-  urlKey
-  sizeDescriptor
-  productCategory
-  lockBuying
-  lockSelling
-  minimumBid(currencyCode: $currencyCode)
-  market(currencyCode: $currencyCode) {
-    bidAskData(country: $countryCode, market: $marketName) {
-      highestBid
-      highestBidSize
-      lowestAsk
-      lowestAskSize
-      __typename
-    }
-    __typename
-  }
-  variants {
-    id
-    market(currencyCode: $currencyCode) {
-      bidAskData(country: $countryCode, market: $marketName) {
-        highestBid
-        highestBidSize
-        lowestAsk
-        lowestAskSize
-        __typename
-      }
-      __typename
-    }
-    __typename
-  }
-  __typename
-}
-
 fragment BreadcrumbsFragment on Product {
   breadcrumbs {
     name
@@ -99,77 +89,6 @@ fragment BreadcrumbSchemaFragment on Product {
   breadcrumbs {
     name
     url
-    __typename
-  }
-  __typename
-}
-
-fragment BuySellContentFragment on Product {
-  id
-  urlKey
-  sizeDescriptor
-  productCategory
-  lockBuying
-  lockSelling
-  market(currencyCode: $currencyCode) {
-    bidAskData(country: $countryCode, market: $marketName) {
-      highestBid
-      highestBidSize
-      lowestAsk
-      lowestAskSize
-      __typename
-    }
-    __typename
-  }
-  variants {
-    id
-    market(currencyCode: $currencyCode) {
-      bidAskData(country: $countryCode, market: $marketName) {
-        highestBid
-        highestBidSize
-        lowestAsk
-        lowestAskSize
-        __typename
-      }
-      __typename
-    }
-    __typename
-  }
-  __typename
-}
-
-fragment BuySellFragment on Product {
-  id
-  title
-  urlKey
-  sizeDescriptor
-  productCategory
-  market(currencyCode: $currencyCode) {
-    bidAskData(country: $countryCode, market: $marketName) {
-      highestBid
-      highestBidSize
-      lowestAsk
-      lowestAskSize
-      __typename
-    }
-    __typename
-  }
-  media {
-    imageUrl
-    __typename
-  }
-  variants {
-    id
-    market(currencyCode: $currencyCode) {
-      bidAskData(country: $countryCode, market: $marketName) {
-        highestBid
-        highestBidSize
-        lowestAsk
-        lowestAskSize
-        __typename
-      }
-      __typename
-    }
     __typename
   }
   __typename
@@ -223,7 +142,7 @@ fragment LastSaleMarket on Market {
   __typename
 }
 
-fragment LowInventoryBannerFragment on Product {
+fragment UrgencyBadgeFragment on Product {
   id
   productCategory
   primaryCategory
@@ -240,6 +159,12 @@ fragment LowInventoryBannerFragment on Product {
     }
     __typename
   }
+  traits {
+    name
+    value
+    visible
+    __typename
+  }
   __typename
 }
 
@@ -251,6 +176,7 @@ fragment LowInventoryBannerMarket on Market {
   }
   salesInformation {
     lastSale
+    salesLast72Hours
     __typename
   }
   __typename
@@ -288,6 +214,27 @@ fragment MediaFragment on Product {
     gallery
     all360Images
     imageUrl
+    __typename
+  }
+  __typename
+}
+
+fragment MyPositionFragment on Product {
+  id
+  urlKey
+  __typename
+}
+
+fragment ProductDetailsFragment on Product {
+  id
+  title
+  productCategory
+  description
+  traits {
+    name
+    value
+    visible
+    format
     __typename
   }
   __typename
@@ -385,6 +332,11 @@ fragment ProductSchemaFragment on Product {
         lowestAsk
         __typename
       }
+      __typename
+    }
+    gtins {
+      type
+      identifier
       __typename
     }
     __typename
@@ -510,12 +462,14 @@ fragment SizeSelectorHeaderFragment on Product {
 fragment SizesFragment on Product {
   id
   productCategory
+  listingType
   title
   __typename
 }
 
 fragment SizesOptionsFragment on Product {
   id
+  listingType
   variants {
     id
     hidden
@@ -641,7 +595,6 @@ fragment ThreeSixtyImageFragment on Product {
     all360Images
     __typename
   }
-  has360Images
   __typename
 }
 
@@ -679,6 +632,7 @@ fragment UtilityGroupFragment on Product {
   ...FollowFragment
   ...FollowContentFragment
   ...FollowShareContentFragment
+  ...FollowSuccessFragment
   ...PortfolioFragment
   ...PortfolioContentFragment
   ...ShareFragment
@@ -689,8 +643,14 @@ fragment FollowFragment on Product {
   id
   productCategory
   title
+  followed
   variants {
     id
+    followed
+    traits {
+      size
+      __typename
+    }
     __typename
   }
   __typename
@@ -704,8 +664,28 @@ fragment FollowContentFragment on Product {
 fragment FollowShareContentFragment on Product {
   id
   title
+  sizeDescriptor
+  urlKey
+  variants {
+    id
+    traits {
+      size
+      __typename
+    }
+    __typename
+  }
+  __typename
+}
+
+fragment FollowSuccessFragment on Product {
+  id
+  title
   productCategory
   sizeDescriptor
+  media {
+    smallImageUrl
+    __typename
+  }
   variants {
     id
     traits {
@@ -736,6 +716,7 @@ fragment PortfolioFragment on Product {
 fragment PortfolioContentFragment on Product {
   id
   productCategory
+  sizeDescriptor
   variants {
     id
     traits {

@@ -7,7 +7,7 @@ describe('Product', () => {
       currencyCode: 'USD',
       countryCode: 'BE',
     });
-    const result = await stockx.productDetails('https://stockx.com/fr-fr/adidas-yeezy-foam-rnnr-mx-cream-clay-infant');
+    const result = await stockx.productDetails('https://stockx.com/fr-fr/adidas-yeezy-foam-rnnr-sulfur-infants');
 
     assert.equal(result.type, PRODUCT_TYPE.SNEAKER);
   });
@@ -25,19 +25,5 @@ describe('Product', () => {
     const stockx = new StockXAPI();
     const result = await stockx.searchProducts('shoes', { limit: 2 });
     assert.operator(result.length, '===', 2);
-  });
-
-  it('Should be proxy ip', async () => {
-    const stockx = new StockXAPI({
-      currencyCode: 'USD',
-      countryCode: 'BE',
-      proxy: [
-
-      ],
-    });
-
-    const ip = await stockx.getMyIp();
-
-    assert.operator('', '===', ip);
   });
 });

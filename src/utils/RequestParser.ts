@@ -6,6 +6,7 @@ import {
 
 const RequestParser = (config?: AxiosRequestConfig | undefined) => {
   const executor = AxiosOriginal.create(config);
+
   executor.interceptors.response.use((res) => res, (error) => {
     const status = error?.response?.status;
 
